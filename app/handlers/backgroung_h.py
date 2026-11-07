@@ -2,7 +2,7 @@ import os
 from typing import Any
 from aiogram import Router, F
 from dotenv import load_dotenv
-from aiogram.types import Message
+from aiogram.types import Message, ReactionTypeEmoji
 
 import app.database.requests as rq
 
@@ -19,3 +19,7 @@ async def new_post(message: Message) -> Any:
         post_id=message.message_id,
         media_group_id=message.media_group_id
     )
+
+@background_r.message(F.text.lower().contains("🤡") | F.text.lower().contains("клоун"))
+async def clown(message: Message) -> Any:
+    await message.react([ReactionTypeEmoji(emoji="🤡")], is_big=True)

@@ -19,11 +19,12 @@ async def main() -> None:
     session = AiohttpSession(api=TelegramAPIServer.from_base(base=os.getenv('CLOUDFLARE_WORKER_URL')), timeout=15)
     bot = Bot(token=os.getenv('TOKEN'), session=session)
     dp = Dispatcher()
-    channel_id = int(os.getenv('CHANNEL_ID'))
+    channel_ids_str = os.getenv('CHANNEL_IDS', '')
+    channel_ids = [int(x.strip()) for x in channel_ids_str.split(',') if x.strip()]
     admin_id = int(os.getenv('ADMIN_ID'))
     print("bot is working")
 
-    sync_task = asyncio.create_task(sync_channel_posts(bot=bot, channel_id=channel_id, admin_id=admin_id))
+    sync_tasks = [asyncio.create_task(sync_channel_posts(bot=bot, channel_id=ch_id, admin_id=admin_id)) for ch_id in channel_ids]
     dp.message.outer_middleware(NewUserMiddleware())
 
     #Подключение роутеров к диспетчеру и вывод базовых команд
@@ -33,7 +34,7 @@ async def main() -> None:
     try:
         await dp.start_polling(bot, polling_timeout=10)
     finally:
-        sync_task.cancel()
+        sync_tasks.cancel()
         await bot.session.close()
         print("bot was disabled")
 

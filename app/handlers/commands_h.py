@@ -20,13 +20,11 @@ async def cmd_random_post(message: Message) -> Any:
     post = await rq.get_random_post()
     if post is None:
         return None
-    load_dotenv()
-    channel_id = int(os.getenv('CHANNEL_ID'))
 
     try:
         await message.bot.copy_message(
             chat_id=message.chat.id,
-            from_chat_id=channel_id,
+            from_chat_id=post.channel_id,
             message_id=post.post_id
         )
     except TelegramBadRequest as e:

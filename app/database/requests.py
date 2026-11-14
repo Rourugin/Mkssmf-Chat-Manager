@@ -1,12 +1,12 @@
 from typing import Any, Optional
-from sqlalchemy import select, func, or_
+from sqlalchemy import select, func, or_, and_
 
 from app.database.models import Post, User
 from app.database.models import async_session
 
 
-async def set_post(post_id: int, media_group_id: Optional[str]) -> Any:
-    conditions = [Post.post_id == post_id]
+async def set_post(channel_id: int, post_id: int, media_group_id: Optional[str]) -> Any:
+    conditions = [and_(Post.channel_id == channel_id, Post.post_id == post_id)]
     if media_group_id is not None:
         conditions.append(Post.media_group_id == media_group_id)
 
@@ -17,6 +17,7 @@ async def set_post(post_id: int, media_group_id: Optional[str]) -> Any:
         if post is not None:
             return None
         obj_post = Post(
+            channel_id=channel_id,
             post_id=post_id,
             media_group_id=media_group_id
         )
@@ -34,7 +35,8 @@ async def set_user(user_id: int, status: int) -> Any:
         obj_user = User(
             user_id=user_id,
             status=status,
-            cash=0
+            respect=0,
+            bananas=0
         )
         session.add(obj_user)
         await session.commit()

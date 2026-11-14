@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from typing import Annotated, Optional
+from sqlalchemy import BigInteger, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, create_async_engine
 
@@ -23,14 +24,20 @@ class User(Base):
     id: Mapped[intpk]
     user_id: Mapped[intun]
     status: Mapped[int]
-    cash: Mapped[int]
+    respect: Mapped[int]
+    bananas: Mapped[int]
 
 class Post(Base):
     __tablename__ = 'posts'
 
     id: Mapped[intpk]
-    post_id: Mapped[intun]
+    channel_id: Mapped[int] = mapped_column(BigInteger)
+    post_id: Mapped[int]
     media_group_id: Mapped[strun]
+
+    __table_args__ = (
+        UniqueConstraint('channel_id', 'post_id', name='uq_channel_post'),
+    )
 
 
 async def async_main() -> None:

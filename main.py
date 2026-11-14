@@ -7,6 +7,7 @@ from aiogram.client.session.aiohttp import AiohttpSession
 
 from app.database.models import async_main
 from app.handlers.__init__ import setup_routers
+from app.utils.middlewares import NewUserMiddleware
 from app.commands.commands_menu import set_commands
 from app.utils.sync_posts import sync_channel_posts
 
@@ -23,6 +24,7 @@ async def main() -> None:
     print("bot is working")
 
     sync_task = asyncio.create_task(sync_channel_posts(bot=bot, channel_id=channel_id, admin_id=admin_id))
+    dp.message.outer_middleware(NewUserMiddleware())
 
     #Подключение роутеров к диспетчеру и вывод базовых команд
     dp.include_routers(setup_routers())

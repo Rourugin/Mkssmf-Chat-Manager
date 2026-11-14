@@ -17,6 +17,13 @@ strun = Annotated[Optional[str], mapped_column(unique=True)]
 class Base(AsyncAttrs, DeclarativeBase):
     pass
 
+class User(Base):
+    __tablename__ = 'users'
+
+    id: Mapped[intpk]
+    user_id: Mapped[intun]
+    status: Mapped[int]
+    cash: Mapped[int]
 
 class Post(Base):
     __tablename__ = 'posts'

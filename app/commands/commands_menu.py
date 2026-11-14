@@ -11,6 +11,10 @@ async def set_commands(bot: Bot) -> None:
         BotCommand(
             command="random_post",
             description="случайный пост"
+        ),
+        BotCommand(
+            command="casino",
+            description="казино"
         )
     ]
 

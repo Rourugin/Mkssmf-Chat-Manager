@@ -1,7 +1,7 @@
 from typing import Any, Optional
 from sqlalchemy import select, func, or_
 
-from app.database.models import Base, Post
+from app.database.models import Post, User
 from app.database.models import async_session
 
 
@@ -24,8 +24,24 @@ async def set_post(post_id: int, media_group_id: Optional[str]) -> Any:
         await session.commit()
 
 
-async def get_post(id: int) -> Post | None:
-    query = select(Post).where(Post.id == id)
+async def set_user(user_id: int, status: int) -> Any:
+    query = select(User).where(User.user_id == user_id)
+    async with async_session() as session:
+        result = await session.execute(query)
+        user = result.scalar()
+        if user is not None:
+            return None
+        obj_user = User(
+            user_id=user_id,
+            status=status,
+            cash=0
+        )
+        session.add(obj_user)
+        await session.commit()
+
+
+async def get_user(user_id: int) -> User | None:
+    query = select(User).where(User.user_id == user_id)
     async with async_session() as session:
         result = await session.execute(query)
         return result.scalar()

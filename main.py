@@ -34,10 +34,14 @@ async def main() -> None:
     try:
         await dp.start_polling(bot, polling_timeout=10)
     finally:
-        sync_tasks.cancel()
+        for task in sync_tasks:
+            task.cancel()
         await bot.session.close()
         print("bot was disabled")
 
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        pass

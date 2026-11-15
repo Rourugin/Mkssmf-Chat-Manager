@@ -1,4 +1,5 @@
 import os
+import logging
 import asyncio
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher
@@ -9,14 +10,14 @@ from app.database.models import async_main
 from app.handlers.__init__ import setup_routers
 from app.utils.middlewares import NewUserMiddleware
 from app.commands.commands_menu import set_commands
-from app.utils.sync_posts import sync_channel_posts
+from app.utils.sync_posts import sync_all_channels
 
 
 async def main() -> None:
     await async_main()
     #Подключение бота и диспетчера по токену из .env
     load_dotenv()
-    session = AiohttpSession(api=TelegramAPIServer.from_base(base=os.getenv('CLOUDFLARE_WORKER_URL')), timeout=15)
+    session = AiohttpSession(api=TelegramAPIServer.from_base(base=os.getenv('CLOUDFLARE_WORKER_URL')), timeout=30)
     bot = Bot(token=os.getenv('TOKEN'), session=session)
     dp = Dispatcher()
     channel_ids_str = os.getenv('CHANNEL_IDS', '')
@@ -24,7 +25,8 @@ async def main() -> None:
     admin_id = int(os.getenv('ADMIN_ID'))
     print("bot is working")
 
-    sync_tasks = [asyncio.create_task(sync_channel_posts(bot=bot, channel_id=ch_id, admin_id=admin_id)) for ch_id in channel_ids]
+    sync_task = asyncio.create_task(sync_all_channels(bot=bot, channel_ids=channel_ids, admin_id=admin_id))
+    sync_task.add_done_callback(lambda t: logging.error("Ошибка в sync_task:", exc_info=t.exception()) if not t.cancelled() and t.exception() else None)
     dp.message.outer_middleware(NewUserMiddleware())
 
     #Подключение роутеров к диспетчеру и вывод базовых команд
@@ -34,8 +36,11 @@ async def main() -> None:
     try:
         await dp.start_polling(bot, polling_timeout=10)
     finally:
-        for task in sync_tasks:
-            task.cancel()
+        sync_task.cancel()
+        try:
+            await sync_task
+        except asyncio.CancelledError:
+            pass
         await bot.session.close()
         print("bot was disabled")
 

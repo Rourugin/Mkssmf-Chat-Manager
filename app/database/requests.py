@@ -54,3 +54,10 @@ async def get_random_post() -> Post | None:
     async with async_session() as session:
         result = await session.execute(query)
         return result.scalar()
+
+
+async def has_channel_posts(channel_id: int) -> bool:
+    query = select(Post.id).where(Post.channel_id == channel_id).limit(1)
+    async with async_session() as session:
+        result = await session.execute(query)
+        return result.scalar() is not None

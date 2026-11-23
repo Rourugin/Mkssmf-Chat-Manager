@@ -18,7 +18,7 @@ class NewUserMiddleware(BaseMiddleware):
         status = 0
         load_dotenv()
         if event.from_user.id == int(os.getenv('ADMIN_ID')):
-            status = 0
+            status = 100
         else:
             status = 1
         await rq.set_user(event.from_user.id, status)

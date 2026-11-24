@@ -1,4 +1,5 @@
 import os
+import secrets
 from dotenv import load_dotenv
 from aiogram.types import Message
 from aiogram import BaseMiddleware
@@ -22,5 +23,18 @@ class NewUserMiddleware(BaseMiddleware):
         else:
             status = 1
         await rq.set_user(event.from_user.id, status)
+
+        user = await rq.get_user(event.from_user.id)
+        if user.status == 0:
+            rand_event = secrets.randbelow(4)
+            match rand_event:
+                case 0:
+                    await event.react([ReactionTypeEmoji(emoji="🤡")], is_big=True)
+                case 1:
+                    await event.reply("🤡")
+                case 2:
+                    await event.reply("позорник ебучий")
+                case 3:
+                    await event.reply("твоё мнение не учитывается бтв")
 
         return await handler(event, data)

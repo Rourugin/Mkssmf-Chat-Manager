@@ -9,12 +9,7 @@ import app.database.requests as rq
 
 
 class NewUserMiddleware(BaseMiddleware):
-    async def __call__(
-            self,
-            handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]],
-            event: Message,
-            data: Dict[str, Any]
-            ):
+    async def __call__(self, handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]], event: Message, data: Dict[str, Any]) -> Any:
 
         status = 0
         load_dotenv()
@@ -24,7 +19,13 @@ class NewUserMiddleware(BaseMiddleware):
             status = 1
         await rq.set_user(event.from_user.id, status)
 
+        return await handler(event, data)
+
+
+class StatusMiddleware(BaseMiddleware):
+    async def __call__(self, handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]], event: Message, data: Dict[str, Any]) ->  Any:
         user = await rq.get_user(event.from_user.id)
+
         if user.status == 0:
             rand_event = secrets.randbelow(4)
             match rand_event:

@@ -6,9 +6,9 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.telegram import TelegramAPIServer
 from aiogram.client.session.aiohttp import AiohttpSession
 
+import app.utils.middlewares as middlewares
 from app.database.models import async_main
 from app.handlers.__init__ import setup_routers
-from app.utils.middlewares import NewUserMiddleware
 from app.commands.commands_menu import set_commands
 from app.utils.sync_posts import sync_all_channels
 
@@ -27,7 +27,8 @@ async def main() -> None:
 
     sync_task = asyncio.create_task(sync_all_channels(bot=bot, channel_ids=channel_ids, admin_id=admin_id))
     sync_task.add_done_callback(lambda t: logging.error("Ошибка в sync_task:", exc_info=t.exception()) if not t.cancelled() and t.exception() else None)
-    dp.message.outer_middleware(NewUserMiddleware())
+    dp.message.outer_middleware(middlewares.NewUserMiddleware())
+    dp.message.outer_middleware(middlewares.StatusMiddleware())
 
     #Подключение роутеров к диспетчеру и вывод базовых команд
     dp.include_routers(setup_routers())

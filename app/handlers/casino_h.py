@@ -186,7 +186,7 @@ async def spin_animation(message: Message, result: Sequence[int], payout: int, s
             else:
                 current_items.append(secrets.choice(SYMBOLS))
 
-        new_text = status_text.format(items=" | ".join(current_items))
+        new_text = start_text.format(items=" | ".join(current_items))
         if new_text != last_text:
             try:
                 await message.edit_text(new_text, parse_mode="HTML")

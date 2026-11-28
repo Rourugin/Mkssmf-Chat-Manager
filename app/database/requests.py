@@ -56,6 +56,13 @@ async def get_random_post() -> Post | None:
         return result.scalar()
 
 
+async def is_post_exist(post_id: int) -> bool:
+    query = select(Post).where(Post.post_id == post_id).limit(1)
+    async with async_session() as session:
+        result = await session.execute(query)
+        return result.scalar() is not None
+
+
 async def has_channel_posts(channel_id: int) -> bool:
     query = select(Post.id).where(Post.channel_id == channel_id).limit(1)
     async with async_session() as session:

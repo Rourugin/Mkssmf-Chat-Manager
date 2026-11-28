@@ -29,6 +29,7 @@ async def main() -> None:
     sync_task.add_done_callback(lambda t: logging.error("Ошибка в sync_task:", exc_info=t.exception()) if not t.cancelled() and t.exception() else None)
     dp.message.outer_middleware(middlewares.NewUserMiddleware())
     dp.message.outer_middleware(middlewares.StatusMiddleware())
+    dp.message.outer_middleware(middlewares.CommentMiddleware())
 
     #Подключение роутеров к диспетчеру и вывод базовых команд
     dp.include_routers(setup_routers())

@@ -14,6 +14,7 @@ from app.utils.sync_posts import sync_all_channels
 
 
 async def main() -> None:
+    os.makedirs("data", exist_ok=True)
     await async_main()
     #Подключение бота и диспетчера по токену из .env
     load_dotenv()

@@ -17,8 +17,7 @@ async def main() -> None:
     await async_main()
     #Подключение бота и диспетчера по токену из .env
     load_dotenv()
-    session = AiohttpSession(api=TelegramAPIServer.from_base(base=os.getenv('CLOUDFLARE_WORKER_URL')), timeout=30)
-    bot = Bot(token=os.getenv('TOKEN'), session=session)
+    bot = Bot(token=os.getenv('TOKEN'))
     dp = Dispatcher()
     channel_ids_str = os.getenv('CHANNEL_IDS', '')
     channel_ids = [int(x.strip()) for x in channel_ids_str.split(',') if x.strip()]
